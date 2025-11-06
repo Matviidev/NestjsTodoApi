@@ -10,6 +10,9 @@ import { AuthConfig } from 'src/config/auth.config';
 import { AuthService } from './auth/auth.service';
 import { PasswordService } from './password/password.service';
 import { AuthController } from './auth/auth.controller';
+import { APP_GUARD } from '@nestjs/core';
+import { AuthGuard } from './auth.guard';
+import { RolesGuard } from './roles.guard';
 
 @Module({
   imports: [
@@ -26,6 +29,18 @@ import { AuthController } from './auth/auth.controller';
     }),
   ],
   controllers: [UsersController, AuthController],
-  providers: [UserService, PasswordService, AuthService],
+  providers: [
+    UserService,
+    PasswordService,
+    AuthService,
+    {
+      provide: APP_GUARD,
+      useClass: AuthGuard,
+    },
+    {
+      provide: APP_GUARD,
+      useClass: RolesGuard,
+    },
+  ],
 })
 export class UsersModule {}

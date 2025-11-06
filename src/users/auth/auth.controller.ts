@@ -1,11 +1,11 @@
 import {
   Body,
   ClassSerializerInterceptor,
+  Request,
   Controller,
   Get,
   NotFoundException,
   Post,
-  Request,
   SerializeOptions,
   UseInterceptors,
 } from '@nestjs/common';
@@ -14,8 +14,8 @@ import { User } from '../user.entity';
 import { AuthService } from './auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { LoginResponse } from '../dto/login.response';
-import { AuthRequest } from '../dto/auth.request';
 import { UserService } from '../user.service';
+import { Request as ExpressRequest } from 'express';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -42,8 +42,8 @@ export class AuthController {
   }
 
   @Get('/profile')
-  async profile(@Request() request: AuthRequest): Promise<User> {
-    const user = await this.userService.findOne(request.user.sub);
+  async profile(@Request() request: ExpressRequest): Promise<User> {
+    const user = await this.userService.findOne(request.user!.sub);
 
     if (user) {
       return user;

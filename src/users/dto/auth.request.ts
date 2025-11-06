@@ -1,6 +1,7 @@
+import { Role } from '../enums/role.enum';
+
 export interface AuthRequest {
-  user: {
-    sub: string;
-    name: string;
-  };
+  sub: string;
+  name: string;
+  roles: Role[];
 }

@@ -9,13 +9,15 @@ import { TypedConfigService } from './config/typed-config.service';
 import { TaskLabel } from './tasks/task-label.enitity';
 import { Task } from './tasks/task.entity';
 import { User } from './users/user.entity';
+import { UsersModule } from './users/users.module';
+import { authConfig } from './config/auth.config';
 
 @Module({
   imports: [
     TasksModule,
     ConfigModule.forRoot({
       isGlobal: true,
-      load: [dbConfig, appConfig],
+      load: [dbConfig, appConfig, authConfig],
       validationSchema,
     }),
     TypeOrmModule.forRootAsync({
@@ -26,6 +28,7 @@ import { User } from './users/user.entity';
         entities: [User, TaskLabel, Task],
       }),
     }),
+    UsersModule,
   ],
 })
 export class AppModule {}

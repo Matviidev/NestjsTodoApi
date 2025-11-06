@@ -30,5 +30,11 @@ import { authConfig } from './config/auth.config';
     }),
     UsersModule,
   ],
+  providers: [
+    {
+      provide: TypedConfigService,
+      useExisting: ConfigService,
+    },
+  ],
 })
 export class AppModule {}

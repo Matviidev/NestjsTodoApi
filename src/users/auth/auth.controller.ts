@@ -11,11 +11,11 @@ import {
 } from '@nestjs/common';
 import { CreateUserDto } from '../dto/create-user.dto';
 import { User } from '../user.entity';
-import { UserService } from '../users.service';
 import { AuthService } from './auth.service';
 import { LoginDto } from '../dto/login.dto';
 import { LoginResponse } from '../dto/login.response';
 import { AuthRequest } from '../dto/auth.request';
+import { UserService } from '../user.service';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)

@@ -1,17 +1,23 @@
 import { Injectable } from '@nestjs/common';
-import { PaginationParams } from 'src/common/pagination.params';
-import { FindTaskParams } from './dto/find-task.params';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
-import { Task } from './task.entity';
-import { CreateTaskDto } from './dto/create-task.dto';
+import { PaginationParams } from './../common/pagination.params';
 import { CreateTaskLabelDto } from './dto/create-task-label.dto';
+import { CreateTaskDto } from './dto/create-task.dto';
+import { FindTaskParams } from './dto/find-task.params';
+import { UpdateTaskDto } from './dto/update-task.dto';
+import { TaskStatus } from './enums/task-status.enum';
+import { TaskLabel } from './task-label.enitity';
+import { Task } from './task.entity';
+import { WrongTaskStatusException } from './exceptions/wrong-task-status.exception';
 
 @Injectable()
 export class TasksService {
   constructor(
     @InjectRepository(Task)
     private readonly tasksRepository: Repository<Task>,
+    @InjectRepository(TaskLabel)
+    private readonly labelsRepository: Repository<TaskLabel>,
   ) {}
 
   public async findAll(
@@ -48,7 +54,14 @@ export class TasksService {
 
     query.orderBy(`task.${filters.sortBy}`, filters.sortOrder);
     query.skip(pagination.offset).take(pagination.limit);
-    return await query.getManyAndCount();
+    return query.getManyAndCount();
+  }
+
+  public async findOne(id: string): Promise<Task | null> {
+    return await this.tasksRepository.findOne({
+      where: { id },
+      relations: ['labels'],
+    });
   }
 
   public async createTask(createTaskDto: CreateTaskDto): Promise<Task> {
@@ -56,6 +69,68 @@ export class TasksService {
       createTaskDto.labels = this.getUniqueLabels(createTaskDto.labels);
     }
     return await this.tasksRepository.save(createTaskDto);
+  }
+
+  public async updateTask(
+    task: Task,
+    updateTaskDto: UpdateTaskDto,
+  ): Promise<Task> {
+    if (
+      updateTaskDto.status &&
+      !this.isValidStatusTransition(task.status, updateTaskDto.status)
+    ) {
+      throw new WrongTaskStatusException();
+    }
+
+    if (updateTaskDto.labels) {
+      updateTaskDto.labels = this.getUniqueLabels(updateTaskDto.labels);
+    }
+
+    Object.assign(task, updateTaskDto);
+    return await this.tasksRepository.save(task);
+  }
+
+  public async addLabels(
+    task: Task,
+    labelDtos: CreateTaskLabelDto[],
+  ): Promise<Task> {
+    const names = new Set(task.labels.map((label) => label.name));
+    const labels = this.getUniqueLabels(labelDtos)
+      .filter((dto) => !names.has(dto.name))
+      .map((label) => this.labelsRepository.create(label));
+
+    if (labels.length) {
+      task.labels = [...task.labels, ...labels];
+      return await this.tasksRepository.save(task);
+    }
+
+    return task;
+  }
+
+  public async removeLabels(
+    task: Task,
+    labelsToRemove: string[],
+  ): Promise<Task> {
+    task.labels = task.labels.filter(
+      (label) => !labelsToRemove.includes(label.name),
+    );
+    return await this.tasksRepository.save(task);
+  }
+
+  public async deleteTask(task: Task): Promise<void> {
+    await this.tasksRepository.remove(task);
+  }
+
+  private isValidStatusTransition(
+    currentStatus: TaskStatus,
+    newStatus: TaskStatus,
+  ): boolean {
+    const statusOrder = [
+      TaskStatus.OPEN,
+      TaskStatus.IN_PROGRESS,
+      TaskStatus.DONE,
+    ];
+    return statusOrder.indexOf(currentStatus) <= statusOrder.indexOf(newStatus);
   }
 
   private getUniqueLabels(

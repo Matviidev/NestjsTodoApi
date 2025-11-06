@@ -3,6 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { CreateUserDto } from './dto/create-user.dto';
 import { User } from './user.entity';
+import { PasswordService } from './password/password.service';
 
 @Injectable()
 export class UserService {
@@ -31,3 +32,4 @@ export class UserService {
   public async findOne(id: string): Promise<User | null> {
     return await this.userRepository.findOneBy({ id });
   }
+}

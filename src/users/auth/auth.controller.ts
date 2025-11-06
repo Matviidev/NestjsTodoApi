@@ -16,6 +16,7 @@ import { LoginDto } from '../dto/login.dto';
 import { LoginResponse } from '../dto/login.response';
 import { UserService } from '../user.service';
 import { Request as ExpressRequest } from 'express';
+import { Public } from '../decorators/public.decorator';
 
 @Controller('auth')
 @UseInterceptors(ClassSerializerInterceptor)
@@ -32,6 +33,7 @@ export class AuthController {
     return user;
   }
 
+  @Public()
   @Post('login')
   async login(@Body() loginDto: LoginDto): Promise<LoginResponse> {
     const accessToken = await this.authService.login(

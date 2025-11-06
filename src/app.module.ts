@@ -6,6 +6,9 @@ import { DbConfig, dbConfig } from './config/db.config';
 import { validationSchema } from './config/validation.schema';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypedConfigService } from './config/typed-config.service';
+import { TaskLabel } from './tasks/task-label.enitity';
+import { Task } from './tasks/task.entity';
+import { User } from './users/user.entity';
 
 @Module({
   imports: [
@@ -20,6 +23,7 @@ import { TypedConfigService } from './config/typed-config.service';
       inject: [ConfigService],
       useFactory: (configService: TypedConfigService) => ({
         ...configService.get<DbConfig>('db'),
+        entities: [User, TaskLabel, Task],
       }),
     }),
   ],

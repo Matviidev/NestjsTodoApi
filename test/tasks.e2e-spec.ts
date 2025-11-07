@@ -2,6 +2,7 @@ import { AppModule } from '../src/app.module';
 import { TaskStatus } from '../src/tasks/enums/task-status.enum';
 import { TestSetup } from './utils/test-setup';
 import * as request from 'supertest';
+import { HttpStatus } from '@nestjs/common';
 
 describe('Tasks (e2e)', () => {
   let testSetup: TestSetup;
@@ -20,12 +21,12 @@ describe('Tasks (e2e)', () => {
     await request(testSetup.app.getHttpServer())
       .post('/auth/register')
       .send(testUser)
-      .expect(201);
+      .expect(HttpStatus.CREATED);
 
     const loginResponse = await request(testSetup.app.getHttpServer())
       .post('/auth/login')
       .send(testUser)
-      .expect(201);
+      .expect(HttpStatus.CREATED);
 
     authToken = loginResponse.body.accessToken;
 
@@ -37,7 +38,9 @@ describe('Tasks (e2e)', () => {
         description: 'Test Desc',
         status: TaskStatus.OPEN,
         labels: [{ name: 'test' }],
-      });
+      })
+      .expect(HttpStatus.CREATED);
+
     taskId = response.body.id;
   });
 
@@ -54,25 +57,25 @@ describe('Tasks (e2e)', () => {
     await request(testSetup.app.getHttpServer())
       .post('/auth/register')
       .send(otherUser)
-      .expect(201);
+      .expect(HttpStatus.CREATED);
 
     const loginResponse = await request(testSetup.app.getHttpServer())
       .post('/auth/login')
       .send(otherUser)
-      .expect(201);
+      .expect(HttpStatus.CREATED);
 
     const otherToken = loginResponse.body.accessToken;
     await request(testSetup.app.getHttpServer())
       .get(`/tasks/${taskId}`)
       .set('Authorization', `Bearer ${otherToken}`)
-      .expect(404);
+      .expect(HttpStatus.NOT_FOUND);
   });
 
   it('should list users tasks only', async () => {
     await request(testSetup.app.getHttpServer())
       .get(`/tasks`)
       .set('Authorization', `Bearer ${authToken}`)
-      .expect(200)
+      .expect(HttpStatus.OK)
       .expect((res) => {
         expect(res.body.meta.total).toBe(1);
       });
@@ -81,18 +84,18 @@ describe('Tasks (e2e)', () => {
     await request(testSetup.app.getHttpServer())
       .post('/auth/register')
       .send(otherUser)
-      .expect(201);
+      .expect(HttpStatus.CREATED);
 
     const loginResponse = await request(testSetup.app.getHttpServer())
       .post('/auth/login')
       .send(otherUser)
-      .expect(201);
+      .expect(HttpStatus.CREATED);
 
     const otherToken = loginResponse.body.accessToken;
     await request(testSetup.app.getHttpServer())
       .get(`/tasks`)
       .set('Authorization', `Bearer ${otherToken}`)
-      .expect(200)
+      .expect(HttpStatus.OK)
       .expect((res) => {
         expect(res.body.meta.total).toBe(0);
       });

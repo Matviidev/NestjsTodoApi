@@ -6,6 +6,7 @@ import { PasswordService } from '../src/users/password/password.service';
 import { User } from '../src/users/user.entity';
 import { TestSetup } from './utils/test-setup';
 import * as request from 'supertest';
+import { HttpStatus } from '@nestjs/common';
 
 describe('Authentication & Authorization (e2e)', () => {
   let testSetup: TestSetup;
@@ -29,19 +30,21 @@ describe('Authentication & Authorization (e2e)', () => {
   };
 
   it('should require auth', () => {
-    return request(testSetup.app.getHttpServer()).get('/tasks').expect(401);
+    return request(testSetup.app.getHttpServer())
+      .get('/tasks')
+      .expect(HttpStatus.UNAUTHORIZED);
   });
 
   it('should allow public route access', async () => {
     await request(testSetup.app.getHttpServer())
       .post('/auth/register')
       .send(testUser)
-      .expect(201);
+      .expect(HttpStatus.CREATED);
 
     await request(testSetup.app.getHttpServer())
       .post('/auth/login')
       .send(testUser)
-      .expect(201);
+      .expect(HttpStatus.CREATED);
   });
 
   it('should include roles in JWT token', async () => {
@@ -71,7 +74,7 @@ describe('Authentication & Authorization (e2e)', () => {
     return request(testSetup.app.getHttpServer())
       .post('/auth/register')
       .send(testUser)
-      .expect(201)
+      .expect(HttpStatus.CREATED)
       .expect((res) => {
         expect(res.body.email).toBe(testUser.email);
         expect(res.body.name).toBe(testUser.name);
@@ -87,7 +90,7 @@ describe('Authentication & Authorization (e2e)', () => {
     return await request(testSetup.app.getHttpServer())
       .post('/auth/register')
       .send(testUser)
-      .expect(409);
+      .expect(HttpStatus.CONFLICT);
   });
 
   it('/auth/login (POST)', async () => {
@@ -99,7 +102,7 @@ describe('Authentication & Authorization (e2e)', () => {
       .post('/auth/login')
       .send({ email: testUser.email, password: testUser.password });
 
-    expect(response.status).toBe(201);
+    expect(response.status).toBe(HttpStatus.CREATED);
     expect(response.body.accessToken).toBeDefined();
   });
 
@@ -117,7 +120,7 @@ describe('Authentication & Authorization (e2e)', () => {
     return await request(testSetup.app.getHttpServer())
       .get('/auth/profile')
       .set('Authorization', `Bearer ${token}`)
-      .expect(200)
+      .expect(HttpStatus.OK)
       .expect((res) => {
         expect(res.body.email).toBe(testUser.email);
         expect(res.body.name).toBe(testUser.name);
@@ -144,7 +147,7 @@ describe('Authentication & Authorization (e2e)', () => {
     return request(testSetup.app.getHttpServer())
       .get('/auth/admin')
       .set('Authorization', `Bearer ${token}`)
-      .expect(200)
+      .expect(HttpStatus.OK)
       .expect((res) => {
         expect(res.body.message).toBe('This is for admins only!');
       });
@@ -164,7 +167,7 @@ describe('Authentication & Authorization (e2e)', () => {
     return await request(testSetup.app.getHttpServer())
       .get('/auth/admin')
       .set('Authorization', `Bearer ${token}`)
-      .expect(403);
+      .expect(HttpStatus.FORBIDDEN);
   });
 
   it('/auth/register (POST) - attempting to register as an admin', async () => {
@@ -175,7 +178,7 @@ describe('Authentication & Authorization (e2e)', () => {
     await request(testSetup.app.getHttpServer())
       .post('/auth/register')
       .send(userAdmin)
-      .expect(201)
+      .expect(HttpStatus.CREATED)
       .expect((res) => {
         expect(res.body.roles).toEqual([Role.USER]);
       });

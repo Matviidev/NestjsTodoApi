@@ -7,7 +7,7 @@ import { CreateTaskDto } from './dto/create-task.dto';
 import { FindTaskParams } from './dto/find-task.params';
 import { UpdateTaskDto } from './dto/update-task.dto';
 import { TaskStatus } from './enums/task-status.enum';
-import { TaskLabel } from './task-label.enitity';
+import { TaskLabel } from './task-label.entity';
 import { Task } from './task.entity';
 import { WrongTaskStatusException } from './exceptions/wrong-task-status.exception';
 

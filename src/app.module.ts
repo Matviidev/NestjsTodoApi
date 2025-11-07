@@ -6,7 +6,7 @@ import { DbConfig, dbConfig } from './config/db.config';
 import { validationSchema } from './config/validation.schema';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { TypedConfigService } from './config/typed-config.service';
-import { TaskLabel } from './tasks/task-label.enitity';
+import { TaskLabel } from './tasks/task-label.entity';
 import { Task } from './tasks/task.entity';
 import { User } from './users/user.entity';
 import { UsersModule } from './users/users.module';

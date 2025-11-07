@@ -8,7 +8,7 @@ import {
   UpdateDateColumn,
 } from 'typeorm';
 import { TaskStatus } from './enums/task-status.enum';
-import { TaskLabel } from './task-label.enitity';
+import { TaskLabel } from './task-label.entity';
 import { User } from '../users/user.entity';
 
 @Entity()

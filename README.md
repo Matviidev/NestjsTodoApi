@@ -1,75 +1,103 @@
-## Description
+# NestJS To-Do API
 
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
+A robust RESTful API for a To-Do list application, built with NestJS, PostgreSQL, and JWT for authentication.
 
-## Project setup
+## Features
 
-```bash
-$ npm install
+- **User Authentication**: Secure user registration and login using JWT (JSON Web Tokens).
+- **Role-Based Access Control **: Differentiated access for `User` and `Admin` roles.
+- **Task Management**: Full CRUD (Create, Read, Update, Delete) operations for tasks.
+- **Task Ownership**: Tasks are private to the user who created them.
+- **Task Labels**: Ability to add and remove labels from tasks.
+- **Pagination & Filtering**: Efficiently query and navigate large sets of tasks.
+- **Database**: Uses PostgreSQL for persistent data storage.
+- **Validation**: DTOs (Data Transfer Objects) for request validation.
+
+## Technologies Used
+
+- [NestJS](https://nestjs.com/ 'null')
+- [TypeScript](https://www.typescriptlang.org/ 'null')
+- [PostgreSQL](https://www.postgresql.org/ 'null')
+- [TypeORM](https://typeorm.io/ 'null')
+- [Docker](https://www.docker.com/ 'null')
+- [JWT](https://jwt.io/ 'null') (for authentication)
+
+## Prerequisites
+
+- [Node.js](https://nodejs.org/en/ 'null') (v18 or later recommended)
+- [npm](https://www.npmjs.com/ 'null') or [yarn](https://yarnpkg.com/ 'null')
+- [Docker](https://www.docker.com/products/docker-desktop/ 'null') and [Docker Compose](https://docs.docker.com/compose/ 'null')
+- A running PostgreSQL instance (or use the provided Docker setup)
+
+## Getting Started
+
+### 1. Clone the Repository
+
+```
+git clone https://github.com/Matviidev/NestjsTodoApi
+cd NestjsTodoApi
+
 ```
 
-## Compile and run the project
+### 2. Install Dependencies
 
-```bash
-# development
-$ npm run start
+```
+npm install
 
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
 ```
 
-## Run tests
+### 3. Configure Environment
 
-```bash
-# unit tests
-$ npm run test
+Create a `.env` file in the root of the project by copying the example.
 
-# e2e tests
-$ npm run test:e2e
+```
+cp .env.example .env
 
-# test coverage
-$ npm run test:cov
 ```
 
-## Deployment
+### 5. Run Migrations
 
-When you're ready to deploy your NestJS application to production, there are some key steps you can take to ensure it runs as efficiently as possible. Check out the [deployment documentation](https://docs.nestjs.com/deployment) for more information.
+The configuration `DB_SYNC=false` is set, which is excellent for production. This means you must run database migrations to create your tables.
 
-If you are looking for a cloud-based platform to deploy your NestJS application, check out [Mau](https://mau.nestjs.com), our official platform for deploying NestJS applications on AWS. Mau makes deployment straightforward and fast, requiring just a few simple steps:
+_(Assuming you have a TypeORM migration script set up in your `package.json`)_
 
-```bash
-$ npm install -g @nestjs/mau
-$ mau deploy
+```
+npm run migration:run
+
 ```
 
-With Mau, you can deploy your application in just a few clicks, allowing you to focus on building features rather than managing infrastructure.
+### 6. Start the Application
 
-## Resources
+```
+# Development mode with hot-reload
+npm run start:dev
 
-Check out a few resources that may come in handy when working with NestJS:
+# Production mode
+npm run start:prod
 
-- Visit the [NestJS Documentation](https://docs.nestjs.com) to learn more about the framework.
-- For questions and support, please visit our [Discord channel](https://discord.gg/G7Qnnhy).
-- To dive deeper and get more hands-on experience, check out our official video [courses](https://courses.nestjs.com/).
-- Deploy your application to AWS with the help of [NestJS Mau](https://mau.nestjs.com) in just a few clicks.
-- Visualize your application graph and interact with the NestJS application in real-time using [NestJS Devtools](https://devtools.nestjs.com).
-- Need help with your project (part-time to full-time)? Check out our official [enterprise support](https://enterprise.nestjs.com).
-- To stay in the loop and get updates, follow us on [X](https://x.com/nestframework) and [LinkedIn](https://linkedin.com/company/nestjs).
-- Looking for a job, or have a job to offer? Check out our official [Jobs board](https://jobs.nestjs.com).
+```
 
-## Support
+The API will be running at `http://localhost:3000`.
 
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
+## API Endpoints
 
-## Stay in touch
+### Authentication Endpoints
 
-- Author - [Kamil Myśliwiec](https://twitter.com/kammysliwiec)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
+| Method | Endpoint         | Description                 | Authentication | Access              |
+| ------ | ---------------- | --------------------------- | -------------- | ------------------- |
+| POST   | `/auth/register` | Register a new user         | Public         | All                 |
+| POST   | `/auth/login`    | Login and receive JWT token | Public         | All                 |
+| GET    | `/auth/profile`  | Get current user profile    | Required       | Authenticated Users |
+| GET    | `/auth/admin`    | Admin-only endpoint         | Required       | Admin Only          |
 
-## License
+### Task Endpoints
 
-Nest is [MIT licensed](https://github.com/nestjs/nest/blob/master/LICENSE).
+| Method | Endpoint            | Description                               | Authentication | Access              |
+| ------ | ------------------- | ----------------------------------------- | -------------- | ------------------- |
+| GET    | `/tasks`            | Get all tasks (with filters & pagination) | Required       | Own Tasks Only      |
+| GET    | `/tasks/:id`        | Get a specific task by ID                 | Required       | Own Tasks Only      |
+| POST   | `/tasks`            | Create a new task                         | Required       | Authenticated Users |
+| PATCH  | `/tasks/:id`        | Update a task                             | Required       | Own Tasks Only      |
+| DELETE | `/tasks/:id`        | Delete a task                             | Required       | Own Tasks Only      |
+| POST   | `/tasks/:id/labels` | Add labels to a task                      | Required       | Own Tasks Only      |
+| DELETE | `/tasks/:id/labels` | Remove labels from a task                 | Required       | Own Tasks Only      |

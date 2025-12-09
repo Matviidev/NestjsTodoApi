@@ -9,6 +9,4 @@ jobs:
     with:
       environment: "production"
       docker_compose_file: "docker-compose.prod.yml"
-    secrets:
-      DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
-      JWT_SECRET: ${{ secrets.JWT_SECRET }}
+    secrets: inherit

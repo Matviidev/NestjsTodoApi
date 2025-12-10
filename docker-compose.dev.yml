@@ -1,0 +1,28 @@
+services:
+  api:
+    build: .
+    ports:
+      - '80:3000'
+    env_file: 
+      - .env
+    depends_on:
+      - db
+    environment:
+      NODE_ENV: development
+      DB_HOST: db
+
+    command: sh -c "npm run migration:run:prod && npm run start:prod"
+
+  db:
+    image: postgres:15-alpine
+    ports:
+      - '5431:5432'
+    environment:
+      POSTGRES_USER: ${DB_USER}
+      POSTGRES_PASSWORD: ${DB_PASSWORD}
+      POSTGRES_DB: ${DB_DATABASE}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+volumes:
+  postgres_data:

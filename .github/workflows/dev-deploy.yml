@@ -1,0 +1,14 @@
+name: Dev Deploy
+
+on:
+  push:
+    branches:
+      - dev
+
+jobs:
+  deploy-dev:
+    uses: ./.github/workflows/deploy.yml
+    with:
+      environment: "development"
+      docker_compose_file: "docker-compose.dev.yml"
+    secrets: inherit

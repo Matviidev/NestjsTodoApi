@@ -27,7 +27,7 @@ jobs:
           echo "DB_HOST=${{ vars.DB_HOST }}" >> .env
           echo "DB_PORT=${{ vars.DB_PORT }}" >> .env
           echo "JWT_SECRET=${{ secrets.JWT_SECRET }}" >> .env
-          echo "JWT_SECRET=${{ vars.DB_SSL }}" >> .env
+          echo "DB_SSL=${{ vars.DB_SSL }}" >> .env
 
       - name: Run docker-compose
         run: |
